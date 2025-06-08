@@ -3,7 +3,7 @@ from pydantic import BaseModel
 import numpy as np
 import joblib
 
-app = FastAPI()
+app = FastAPI(root_path="/APIpy")
 model = joblib.load("age_model_svr.pkl")
 
 class FeatureSet(BaseModel):
