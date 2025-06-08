@@ -6,7 +6,7 @@ import joblib
 app = FastAPI()
 model = joblib.load("age_model_svr.pkl")
 
-class Features(BaseModel):
+class FeatureSet(BaseModel):
     cam_aver_time: float
     cam_aver_abs_delta: float
     math_aver_time: float
@@ -21,10 +21,16 @@ class Features(BaseModel):
     sex: int
 
 @app.post("/predict")
-def predict_age(features: Features):
-    try:
-        x = np.array([[getattr(features, k) for k in features.__fields__]])
-        age = model.predict(x)[0]
-        return {"age": float(age)}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+async def predict(features: FeatureSet):
+    order = [
+        'cam_aver_time', 'cam_aver_abs_delta',
+        'math_aver_time', 'math_part_correct',
+        'mem_aver_time', 'mem_part_correct',
+        'mun_aver_time',
+        'str_aver_time', 'str_part_correct',
+        'swa_aver_time', 'swa_part_correct',
+        'sex'
+    ]
+    x = np.array([[getattr(features, key) for key in order]])
+    age = float(model.predict(x)[0])
+    return { "age": age }
